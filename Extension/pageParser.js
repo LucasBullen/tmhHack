@@ -1,5 +1,6 @@
 window.onload = function(){
    	var txt = htmlToText(document.body.innerHTML);
+   	chrome.runtime.sendMessage({text:txt});
 }
 
 
