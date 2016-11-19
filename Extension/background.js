@@ -6,6 +6,11 @@ if (!localStorage.charCount)
 if (!localStorage.sentenceCount)
 	localStorage.sentenceCount = 0;
 
+function textToToneAnalyzerResults(text){
+
+}
+
+
 // saves the pages text
 // if hits max, then returns text that did not fit in file.
 function textToStorage(newText){
@@ -18,7 +23,14 @@ function textToStorage(newText){
 		text += sentence;
 	});
 	localStorage.text = text;
-	return returnObject[""]
+  localStorage.charCount = returnObject["charCount"];
+  localStorage.sentenceCount = returnObject["sentenceCount"];
+	return returnObject["execessText"];
+}
+function printStorage(){
+  console.log("charCount: " + localStorage.charCount);
+  console.log("sentenceCount: " + localStorage.sentenceCount);
+  console.log("text: " + localStorage.text);
 }
 
 function limitSentences(string, chars, sentenceCount) {
@@ -40,7 +52,12 @@ function limitSentences(string, chars, sentenceCount) {
     }
     index += 1;
   }
-  return {"arrayOfSentences":arrayOfSentences,"execessText":string.slice(0,charCount)};
+  return {
+    "arrayOfSentences":arrayOfSentences,
+    "execessText":string.slice(0,charCount),
+    "charCount":chars + charCount,
+    "sentenceCount":sentenceCount + arrayOfSentences.length
+  };
 }
 
 // Returns a list of sentences that are at least 3 words long
