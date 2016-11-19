@@ -1,6 +1,7 @@
 window.onload = function(){
+    console.log("Test logging from pageParser");
    	var txt = htmlToText(document.body.innerHTML);
-   	chrome.runtime.sendMessage({text:txt});
+    chrome.runtime.sendMessage({text: txt, source:"pageParser"});
 }
 
 

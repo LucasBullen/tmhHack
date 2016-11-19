@@ -12,7 +12,7 @@ function textToToneAnalyzerResults(text){
     if(text.length != 0){
       //send request
       //clear storage
-      console.log(callToneAnalyzer(text));
+      console.log(callToneAnalyzer(localstorage.text));
       localStorage.text = "";
       localStorage.charCount = 0;
       localStorage.sentenceCount = 0;
@@ -99,11 +99,20 @@ function limitSentences(string, chars, sentenceCount) {
   }
   return {
     "arrayOfSentences":arrayOfSentences,
-    "execessText":string.slice(0,charCount),
+    "execessText":string.slice(charCount, string.length),
     "charCount":chars + charCount,
     "sentenceCount":sentenceCount + arrayOfSentences.length
   };
 }
+
+// Listener for contentScript.js's message.
+var parsedPageText;
+chrome.runtime.onMessage.addListener(function(message,sender) {
+	if (message.source === "pageParser") {
+		console.log("Received successfully!");
+		parsedPageText = message.text;
+	}
+});
 
 // Returns a list of sentences that are at least 3 words long
 function regexStrip(string) {
@@ -112,10 +121,4 @@ function regexStrip(string) {
   return array;
 }
 
-var views = chrome.extension.getViews({
-    type: "popup"
-});
-console.log(views);
-for (var i = 0; i < views.length; i++) {
-    views[i].document.getElementById('body-text').innerHTML = "My Custom Value";
-}
+var testString = "Hello there Mr. Popup";
