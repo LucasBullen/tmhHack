@@ -101,6 +101,13 @@ function limitSentences(string, chars, sentenceCount) {
   };
 }
 
+// Listener for contentScript.js's message.
+var parsedPageText;
+chrome.runtime.onMessage.addListener(function(message,sender) {
+	console.log("Received successfully!");
+	parsedPageText = message.text;
+});
+
 // Returns a list of sentences that are at least 3 words long
 function regexStrip(string) {
   var re = /[^\s\.\?!]+\s[^\.\?!]+\s[^\.\?!]+([\.\?!]|$)/g;
@@ -108,10 +115,4 @@ function regexStrip(string) {
   return array;
 }
 
-var views = chrome.extension.getViews({
-    type: "popup"
-});
-console.log(views);
-for (var i = 0; i < views.length; i++) {
-    views[i].document.getElementById('body-text').innerHTML = "My Custom Value";
-}
+var testString = "Hello there Mr. Popup";
