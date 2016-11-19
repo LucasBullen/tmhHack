@@ -1,3 +1,7 @@
+var MAX_CHARS = 130000; // Rough estimate from API restrictions
+var MAX_SENTENCES = 1000; // Exact maximum from API restrictions
+var parsedPageText;
+
 //init localStorage objects
 if (!localStorage.text)
 	localStorage.text = "";
@@ -12,7 +16,9 @@ function textToToneAnalyzerResults(text){
     if(text.length != 0){
       //send request
       //clear storage
-      console.log(callToneAnalyzer(localstorage.text));
+      callToneAnalyzer(localStorage.text);
+      console.log("sending");
+      //logAnalysis()
       localStorage.text = "";
       localStorage.charCount = 0;
       localStorage.sentenceCount = 0;
@@ -25,16 +31,23 @@ function callToneAnalyzer(text){
   var password = "4sHSG7B16zn4";
 
   var authorizationBasic = window.btoa(username + ':' + password);
+  text = "this is a sentence."
+
+  var fd = new FormData();
+  fd.append( 'text', text );
+
 
   $.ajax({
     type: "POST",
     url: "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2016-05-19",
-    data: { body: text },
-    dataType: "json",
-    contentType: 'application/x-www-form-urlencoded; charset=utf-8',
-    xhrFields: {
-      withCredentials: true
-    },
+    data: fd,
+    processData: false,
+    contentType: false,
+   // dataType: "json",
+   // contentType: '',
+    // xhrFields: {
+    //   withCredentials: true
+    // },
     // crossDomain: true,
     headers: {
     'Content-Type':'text/plain',
@@ -43,6 +56,14 @@ function callToneAnalyzer(text){
     //beforeSend: function (xhr) {
     //},
     success: function (result) {
+      var hold = result.document_tone.tone_categories[0].tones;
+      localStorage.lastValues = JSON.stringify({
+        'anger':hold[0].score,
+        'disgust':hold[1].score,
+        'fear':hold[2].score,
+        'joy':hold[3].score,
+        'sadness':hold[4].score
+      });
       console.log(result);
       return result;
     },
@@ -59,12 +80,12 @@ function callToneAnalyzer(text){
 // if hits max, then returns text that did not fit in file.
 function textToStorage(newText){
 	var text = localStorage.text;
-	var charCount = localStorage.charCount;
-	var sentenceCount = localStorage.sentenceCount;
+	var charCount = parseInt(localStorage.charCount);
+	var sentenceCount = parseInt(localStorage.sentenceCount);
 	var returnObject = limitSentences(newText, charCount, sentenceCount);
 	var arrayOfSentences = returnObject["arrayOfSentences"];
 	arrayOfSentences.map(function (sentence) {
-		text += sentence;
+		text += " " +sentence;
 	});
 	localStorage.text = text;
   localStorage.charCount = returnObject["charCount"];
@@ -72,34 +93,61 @@ function textToStorage(newText){
 	return returnObject["execessText"];
 }
 
-function printStorage(){
-  console.log("charCount: " + localStorage.charCount);
-  console.log("sentenceCount: " + localStorage.sentenceCount);
-  console.log("text: " + localStorage.text);
+function printStorage(text, char, sent, other){
+  if (text !== false) console.log("charCount: " + localStorage.charCount);
+  if (char !== false) console.log("sentenceCount: " + localStorage.sentenceCount);
+  if (sent !== false) console.log("text: " + localStorage.text);
+  if (sent !== false){
+    console.log("text:");
+    console.log(localStorage.lastValues);
+  }
 }
 
-function limitSentences(string, chars, sentenceCount) {
-  var MAX_CHARS = 130000 - chars; // Rough estimate from API restrictions
-  var MAX_SENTENCES = 1000 - sentenceCount; // Exact maximum from API restrictions
-  var arrayOfSentences = regexStrip(string);
-  if (arrayOfSentences.length > MAX_SENTENCES) { // Limit number of sentences
-    arrayOfSentences = arrayOfSentences.slice(0, MAX_SENTENCES);
+function resetStorage(){
+  localStorage.text = "";
+  localStorage.charCount = 0;
+  localStorage.sentenceCount = 0;
+  printStorage();
+}
+
+function limitSentences(theString, chars, sentenceCount) {
+  var allowedChars = MAX_CHARS - chars; // Rough estimate from API restrictions
+  var allowedSentences = MAX_SENTENCES - sentenceCount; // Exact maximum from API restrictions
+  var arrayOfSentences = regexStrip(theString);
+  var execessSentences = arrayOfSentences;
+  if (arrayOfSentences == null){ // no sentences found, return and remove the string
+    return {
+      "arrayOfSentences":[],
+      "execessText":"",
+      "charCount":chars,
+      "sentenceCount":sentenceCount
+    };
+  }
+  if (arrayOfSentences.length > allowedSentences) { // Limit number of sentences
+    arrayOfSentences = arrayOfSentences.slice(0, allowedSentences);
   }
   // Limit number of chars
   var charCount = 0;
   var index = 0;
-  while (charCount <= MAX_CHARS && index < arrayOfSentences.length) {
+  while (charCount <= allowedChars && index < arrayOfSentences.length) {
     charCount += arrayOfSentences[index].length;
-    if (charCount > MAX_CHARS) {
+    if (charCount > allowedChars) {
     	charCount -= arrayOfSentences[index].length;
       arrayOfSentences = arrayOfSentences.slice(0, index);
       break;
     }
     index += 1;
   }
+  // convert execess to string
+  execessSentences = execessSentences.slice(arrayOfSentences.length,execessSentences.length);
+  var execessText = "";
+  execessSentences.map(function (sentence) {
+    execessText += sentence;
+  });
+
   return {
     "arrayOfSentences":arrayOfSentences,
-    "execessText":string.slice(charCount, string.length),
+    "execessText":execessText,
     "charCount":chars + charCount,
     "sentenceCount":sentenceCount + arrayOfSentences.length
   };
@@ -109,14 +157,15 @@ function limitSentences(string, chars, sentenceCount) {
 var parsedPageText;
 chrome.runtime.onMessage.addListener(function(message,sender) {
 	if (message.source === "pageParser") {
-		console.log("Received successfully!");
+		console.log("Received successfully");
 		parsedPageText = message.text;
+    textToToneAnalyzerResults(parsedPageText);
 	}
 });
 
 // Returns a list of sentences that are at least 3 words long
 function regexStrip(string) {
-  var re = /[^\s\.\?!]+\s[^\.\?!]+\s[^\.\?!]+([\.\?!]|$)/g;
+  var re = /[^\.\?!]+\s[^\.\?!]+\s[^\.\?!]+([\.\?!]|$)/g;
   var array = string.match(re);
   return array;
 }
