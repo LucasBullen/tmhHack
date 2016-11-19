@@ -7,7 +7,48 @@ if (!localStorage.sentenceCount)
 	localStorage.sentenceCount = 0;
 
 function textToToneAnalyzerResults(text){
+  while(text.length != 0){
+    text = textToStorage(text);
+    if(text.length != 0){
+      //send request
+      //clear storage
+      var textToSend = localStorage.text;
+      /*
+      var username = "165c1666-05bd-42d0-a94c-36ca87315c19";
+      var password = "4sHSG7B16zn4";
 
+      var authorizationBasic = $.base64.btoa(username + ':' + password);
+
+      $.ajax({
+        type: "POST",
+        url: "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2016-05-19",
+        data: { body: textToSend },
+        dataType: "json",
+        contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+        xhrFields: {
+          withCredentials: true
+        },
+        // crossDomain: true,
+        headers: {
+        'Authorization': 'Basic ' + authorizationBasic
+        },
+        //beforeSend: function (xhr) {
+        //},
+        success: function (result) {
+        var token = result;
+        },
+        //complete: function (jqXHR, textStatus) {
+        //},
+        error: function (req, status, error) {
+        alert(error);
+        }
+      });
+      */
+      localStorage.text = "";
+      localStorage.charCount = 0;
+      localStorage.sentenceCount = 0;
+    }
+  }
 }
 
 
