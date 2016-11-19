@@ -1,0 +1,27 @@
+#anger {
+  color: red;
+}
+
+#disgust {
+  color: green;
+}
+
+#fear {
+  color: purple;
+}
+
+#joy {
+  color: orange;
+}
+
+#sadness {
+  color: blue;
+}
+
+div {
+  width: 150px;
+  height: 30px;
+  border: thin dashed black;
+  line-height: 26px;
+  padding: 5px;
+}
