@@ -12,7 +12,7 @@ function textToToneAnalyzerResults(text){
     if(text.length != 0){
       //send request
       //clear storage
-      console.log(callToneAnalyzer(text));
+      console.log(callToneAnalyzer(localstorage.text));
       localStorage.text = "";
       localStorage.charCount = 0;
       localStorage.sentenceCount = 0;
@@ -99,7 +99,7 @@ function limitSentences(string, chars, sentenceCount) {
   }
   return {
     "arrayOfSentences":arrayOfSentences,
-    "execessText":string.slice(0,charCount),
+    "execessText":string.slice(charCount, string.length),
     "charCount":chars + charCount,
     "sentenceCount":sentenceCount + arrayOfSentences.length
   };
@@ -108,8 +108,10 @@ function limitSentences(string, chars, sentenceCount) {
 // Listener for contentScript.js's message.
 var parsedPageText;
 chrome.runtime.onMessage.addListener(function(message,sender) {
-	console.log("Received successfully!");
-	parsedPageText = message.text;
+	if (message.source === "pageParser") {
+		console.log("Received successfully!");
+		parsedPageText = message.text;
+	}
 });
 
 // Returns a list of sentences that are at least 3 words long
