@@ -65,6 +65,16 @@ function callToneAnalyzer(text){
         'sadness':hold[4].score
       });
       console.log(result);
+      chrome.runtime.sendMessage({
+        lastValues: {
+          'anger':hold[0].score,
+          'disgust':hold[1].score,
+          'fear':hold[2].score,
+          'joy':hold[3].score,
+          'sadness':hold[4].score
+        },
+        source:"background"
+      });
       return result;
     },
     //complete: function (jqXHR, textStatus) {
