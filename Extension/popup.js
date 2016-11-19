@@ -1,2 +1,5 @@
 console.log(chrome.extension.getBackgroundPage().testString);
-chrome.extension.getBackgroundPage().parsedPageText;
+window.onload = function() {
+  var info = localStorage.lastValues;
+  document.getElementById("anger").innerHTML = "TESTING AHAHA";
+};
