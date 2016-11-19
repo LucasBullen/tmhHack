@@ -66,3 +66,11 @@ function regexStrip(string) {
   var array = string.match(re);
   return array;
 }
+
+var views = chrome.extension.getViews({
+    type: "popup"
+});
+console.log(views);
+for (var i = 0; i < views.length; i++) {
+    views[i].document.getElementById('body-text').innerHTML = "My Custom Value";
+}
