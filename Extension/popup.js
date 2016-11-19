@@ -8,8 +8,13 @@ chrome.runtime.onMessage.addListener(function(message,sender) {
 });
 
 window.onload = function() {
-  console.log(localStorage.lastValues);
-  if (emotionInfo != null) {
-    document.getElementById("anger").innerHTML = emotionInfo.anger;
+  if (localStorage.lastValues != null) {
+  	var jsoned = JSON.parse(localStorage.lastValues);
+    document.getElementById("anger").innerHTML = "Anger:"+jsoned.anger;
+    document.getElementById("disgust").innerHTML = "Disgust:"+jsoned.disgust;
+    document.getElementById("fear").innerHTML = "Fear:"+jsoned.fear;
+    document.getElementById("joy").innerHTML = "Joy:"+jsoned.joy;
+    document.getElementById("sadness").innerHTML = "Sadness:"+jsoned.sadness;
   }
+  document.getElementById("loading").innerHTML = "Sentences till next load: "+(1000 - parseInt(localStorage.sentenceCount));
 };
