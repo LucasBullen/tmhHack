@@ -25,3 +25,10 @@ div {
   line-height: 26px;
   padding: 5px;
 }
+
+.dataButton {
+	text-decoration: none
+}
+.dataButton:hover {
+	text-decoration: underline
+}
