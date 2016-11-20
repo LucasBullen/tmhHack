@@ -2,6 +2,20 @@ var MAX_CHARS = 130000; // Rough estimate from API restrictions
 var MAX_SENTENCES = 1000; // Exact maximum from API restrictions
 var parsedPageText;
 
+class dataPoint {
+	constructor (anger, disgust, joy, fear, sadness) {
+		this.anger = Math.round(anger * 100) / 100;
+		this.disgust = Math.round(disgust * 100) / 100;
+		this.joy = Math.round(joy * 100) / 100;
+		this.fear = Math.round(fear * 100) / 100;
+		this.sadness = Math.round(sadness * 100) / 100;		
+		var d = new Date();
+		this.hours = d.getHours();
+		this.minutes = d.getMinutes();
+		this.seconds = d.getSeconds();
+	}
+}
+
 //init localStorage objects
 if (!localStorage.text)
 	localStorage.text = "";
@@ -9,6 +23,15 @@ if (!localStorage.charCount)
 	localStorage.charCount = 0;
 if (!localStorage.sentenceCount)
 	localStorage.sentenceCount = 0;
+if (!localStorage.dataList) 
+	localStorage.dataList = JSON.stringify([]);
+
+function addNewDataPoint (anger,disgust,joy,fear,sadness) {
+	var newPoint = new dataPoint (anger,disgust,joy,fear,sadness);
+	var tempArray = JSON.parse ( localStorage.dataList );
+	tempArray.push(newPoint);
+	localStorage.dataList = JSON.stringify (tempArray);
+}
 
 function textToToneAnalyzerResults(text){
   while(text.length != 0){
@@ -57,6 +80,7 @@ function callToneAnalyzer(text){
     //},
     success: function (result) {
       var hold = result.document_tone.tone_categories[0].tones;
+      addNewDataPoint (hold[0].score,hold[1].score,hold[2].score,hold[3].score,hold[4].score);
       localStorage.lastValues = JSON.stringify({
         'anger':hold[0].score,
         'disgust':hold[1].score,
@@ -117,6 +141,7 @@ function resetStorage(){
   localStorage.text = "";
   localStorage.charCount = 0;
   localStorage.sentenceCount = 0;
+  localStorage.dataList = JSON.stringify([]);
   printStorage();
 }
 
