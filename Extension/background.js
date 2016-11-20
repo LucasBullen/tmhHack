@@ -3,7 +3,7 @@ var MAX_SENTENCES = 1000; // Exact maximum from API restrictions
 var parsedPageText;
 
 class dataPoint {
-	constructor (anger, disgust, joy, fear, sadness) {
+	constructor (anger, disgust, fear, joy, sadness) {
 		this.anger = Math.round(anger * 100) / 100;
 		this.disgust = Math.round(disgust * 100) / 100;
 		this.joy = Math.round(joy * 100) / 100;
